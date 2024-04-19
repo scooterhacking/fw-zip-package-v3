@@ -40,7 +40,6 @@ public class ConnectedScooter {
         _bms_board = "undefined";
         _drv_mcu = "n/a";
         if (_isXiaomi) {
-            _bms_board = "mi_BMS_ST8";
             if (model.equals("m365")) {
                 _ble_board = "mi_BLE_LEGACY";
             }
@@ -139,6 +138,8 @@ public class ConnectedScooter {
             _bms_board = "undefined";
             return;
         }
+        else if (_isXiaomi)
+            _bms_board = "mi_BMS_";
         else if (_model.equals("esx") || _model.equals("e"))
             _bms_board = "esx_e_BMS_";
         else if (_model.equals("max") || _model.equals("g2") || _model.equals("g65"))
