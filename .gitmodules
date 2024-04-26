@@ -1,0 +1,3 @@
+[submodule "NinebotTEA"]
+	path = Python/NinebotTEA
+	url = https://github.com/scooterhacking/NinebotTEA

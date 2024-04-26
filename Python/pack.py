@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from typing import List, Optional
+from NinebotTEA.NinebotTEA import NinebotTEA
 
 ALLOWED_ENC_FLAGS_ZIP3 = {'both', 'plain', 'encrypted'}
 ALLOWED_TYP_FLAGS = {'DRV', 'BMS', 'BLE'}
@@ -79,7 +80,7 @@ def make_zip_v3(data: bytes, name: str, type_flag: str, model: str, boards: List
             info_json["firmware"]["md5"]["bin"] = md5
 
         if enc in {"both", "encrypted"}:
-            encrypted_data = encrypt(data) # provide your TEA encrypt function
+            encrypted_data = NinebotTEA().encrypt(data)
             zip_file.writestr('FIRM.bin.enc', encrypted_data)
             md5e = hashlib.md5(encrypted_data).hexdigest()
             info_json["firmware"]["md5"]["enc"] = md5e
