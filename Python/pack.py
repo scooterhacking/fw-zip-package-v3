@@ -3,6 +3,7 @@ import zipfile
 import hashlib
 import json
 import os
+import argparse
 from typing import List, Optional
 from NinebotTEA.NinebotTEA import NinebotTEA
 
@@ -95,32 +96,37 @@ def make_zip_v3(data: bytes, name: str, type_flag: str, model: str, boards: List
     return content
 
 def main():
-    bin_file_path = input("Enter the path to the firmware .bin file: ")
+    parser = argparse.ArgumentParser(description="Generate a firmware ZIP file. Example: python pack.py \"1.6.13 (Compat).bin\" \"1.6.13 (Compat)\" max DRV max_DRV_STM32F103CxT6,max_DRV_AT32F415CxT7 True encrypted \"1.6.13 (Compat).zip\"")
+    parser.add_argument("bin_file_path", help="Path to the firmware .bin file")
+    parser.add_argument("name", help="Firmware display name")
+    parser.add_argument("model", help="Model name (1-10 alphanumeric characters)")
+    parser.add_argument("type_flag", choices=ALLOWED_TYP_FLAGS, help="Type flag")
+    parser.add_argument("boards", help="List of compatible boards (comma-separated)")
+    parser.add_argument("enforce_model", type=bool, help="Enforce model? (True/False)")
+    parser.add_argument("enc", choices=ALLOWED_ENC_FLAGS_ZIP3, help="Encryption flag")
+    parser.add_argument("output_zip_path", help="Path to save the output ZIP file")
+    parser.add_argument("--params", default="", help="Additional parameters if any, for the params.txt file (optional)")
+    parser.add_argument("--schema_version", type=int, default=1, help="Schema version (default 1)")
 
-    if not os.path.exists(bin_file_path):
+    args = parser.parse_args()
+
+    if not os.path.exists(args.bin_file_path):
         print("File not found. Please check the path.")
         return
 
-    with open(bin_file_path, 'rb') as file:
+    with open(args.bin_file_path, 'rb') as file:
         data = file.read()
 
-    name = input("Enter the firmware display name: ")
-    model = input("Enter the model name (1-10 alphanumeric characters): ")
-    type_flag = input("Enter the type flag (one of 'DRV', 'BMS', 'BLE'): ")
-    boards = input("Enter a list of compatible boards (comma-separated): ").split(',')
-    enforce_model = bool(input("Enforce model? (True/False): "))
-    enc = input("Enter the encryption flag (one of 'both', 'plain', 'encrypted'): ")
-    schema_version = 1
-    params = input("Enter additional parameters if any (leave blank for none): ")
-
     try:
-        zip_content = make_zip_v3(data, name, type_flag, model, boards, enforce_model, enc, schema_version, params)
+        zip_content = make_zip_v3(
+            data, args.name, args.type_flag, args.model, args.boards.split(','),
+            args.enforce_model, args.enc, args.schema_version, args.params
+        )
 
-        output_zip_path = input("Enter the path to save the output ZIP file: ")
-        with open(output_zip_path, 'wb') as zip_file:
+        with open(args.output_zip_path, 'wb') as zip_file:
             zip_file.write(zip_content)
 
-        print(f"ZIP file saved successfully to {output_zip_path}")
+        print(f"ZIP file saved successfully to {args.output_zip_path}")
 
     except ValueError as e:
         print(f"Error: {e}")
